@@ -2,11 +2,11 @@
   <div class="min-h-screen bg-neutral-50 dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 p-4 sm:p-8">
     <header class="text-center mb-8">
       <h1 class="text-3xl sm:text-4xl font-bold text-neutral-600 dark:text-neutral-400">💸 Bantay Presyo 💸</h1>
-      <p class="text-base sm:text-lg mt-2 text-neutral-600 dark:text-neutral-400">Monitor prevailing retail prices in
+      <p class="text-base font-medium sm:text-lg mt-2 text-neutral-600 dark:text-neutral-400">Monitor prevailing retail prices in
         the Philippines</p>
     </header>
 
-    <main class="max-w-5xl mx-auto">
+    <main class="max-w-3xl mx-auto">
       <!-- Date Selection and Search -->
       <div class="flex flex-col lg:flex-row gap-4 bg-white dark:bg-neutral-800 rounded-2xl shadow-md p-4 sm:p-6 mb-6">
         <div class="flex flex-col sm:flex-row items-center gap-4">
@@ -148,7 +148,7 @@ import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
 import VueDatePicker from 'vue3-datepicker';
 
-const apiUrl = import.meta.env.VITE_API_URL || 'https://bantay-presyo-api.vercel.app';
+const apiUrl = import.meta.env.VITE_API_URL;
 const availableDates = ref([]);
 const selectedDate = ref(null); // Changed to Date object for date picker
 const priceData = ref([]);
@@ -156,9 +156,16 @@ const loading = ref(false);
 const error = ref(null);
 const searchQuery = ref('');
 
-const formatDate = (date) => {
-  if (!date) return '';
-  return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+const formatDate = (dateInput) => {
+  const date = new Date(dateInput);
+  const months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+  const month = months[date.getMonth()];
+  const day = date.getDate();
+  const year = date.getFullYear();
+  return `${month} ${day}, ${year}`; // e.g., "September 2, 2025"
 };
 
 // Group price data by category
