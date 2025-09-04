@@ -235,9 +235,8 @@ const fetchAvailableDates = async (retries = 3, delay = 1000) => {
     try {
       loading.value = true;
       error.value = null;
-      const response = await axios.get(`${apiUrl}/daily_links?limit=20`, {
-        timeout: 30000,
-        headers: { Authorization: `Bearer ${apiKey}` }
+      const response = await axios.get(`${apiUrl}/proxy?endpoint=daily_links&limit=20`, {
+        timeout: 30000
       });
       availableDates.value = response.data;
       if (availableDates.value.length > 0) {
@@ -259,15 +258,15 @@ const fetchAvailableDates = async (retries = 3, delay = 1000) => {
   }
 };
 
+// Update fetchData (replace lines ~233-251)
 const fetchData = async () => {
   if (!selectedDate.value) return;
   try {
     loading.value = true;
     error.value = null;
     const formattedDate = formatDate(selectedDate.value);
-    const response = await axios.get(`${apiUrl}/data?date=${encodeURIComponent(formattedDate)}`, {
-      timeout: 30000,
-      headers: { Authorization: `Bearer ${apiKey}` }
+    const response = await axios.get(`${apiUrl}/proxy?endpoint=data&date=${encodeURIComponent(formattedDate)}`, {
+      timeout: 30000
     });
     priceData.value = response.data.data || [];
     notes.value = response.data.notes || [];
