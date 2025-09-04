@@ -35,7 +35,7 @@
             Retry
           </button>
         </div>
-        <div class="w-full relative">
+        <div class="w-full relative lg:ml-12">
           <input v-model="searchQuery" type="text" placeholder="Search commodities..."
             class="w-full bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-2xl pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-neutral-500" />
           <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-neutral-400" fill="none"
@@ -109,31 +109,30 @@
         No data available for the selected date.
       </p>
 
-      <div class="mt-8 text-sm bg-white dark:bg-black/20 rounded-2xl p-4 sm:p-6 grainy motion-safe:animate-slide-up">
-        <p>The prevailing price is calculated as the average cost of essential goods sold in a specific area, determined using the arithmetic mean.</p>
-        <p class="mt-4 font-semibold">Markets Monitored:</p>
-        <ol class="list-decimal list-inside ml-4">
-          <li>Commonwealth Market</li>
-          <li>New Las Piñas City Public Market</li>
-          <li>Marikina Public Market</li>
-          <li>Muñoz Market</li>
-          <li>Pasay City Public Market</li>
-          <li>Mutya ng Pasig Mega Market</li>
-          <li>Quinta Market</li>
-        </ol>
-        <p class="mt-4">
+      <div v-if="priceData.length > 0 && !loading" class="mt-8 text-sm bg-white dark:bg-black/20 rounded-2xl p-4 sm:p-6 grainy motion-safe:animate-slide-up">
+        <p>Note(s):</p>
+        <div v-if="notes.length > 0" class="mt-4">
+          <p v-for="note in nonMarketNotes" :key="note" class="mb-2">{{ note }}</p>
+          <p v-if="marketNotes.length > 0" class="mt-4 font-semibold">Covered Markets:</p>
+          <ol class="list-decimal list-outside ml-6 mt-2">
+            <li v-for="market in marketNotes" :key="market">{{ market }}</li>
+          </ol>
+        </div>
+      </div>
+
+      <p class="mt-4 flex flex-col gap-1 text-sm text-gray-500">
+        <span>
           Data Source:
           <a href="https://www.da.gov.ph/price-monitoring/" target="_blank"
             class="text-blue-600 underline hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:underline">
             Department of Agriculture Price Monitoring
           </a>
-        </p>
-      </div>
-
-      <p class="mt-4 text-sm text-gray-500">
-        Spotted a problem or want to share feedback? Reach out to me on <a
+        </span>
+       <span>
+         Spotted a problem or want to share feedback? Reach out to me on <a
           href="https://m.me/joshsarmiento22" target="_blank" rel="noreferrer noopener"
           class="text-blue-600 underline hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">Facebook Messenger</a>.
+       </span>
       </p>
 
       <footer class="px-4 pt-4 pb-8 text-center text-gray-900 dark:text-gray-100 mt-8">
@@ -153,10 +152,14 @@ import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
 import VueDatePicker from 'vue3-datepicker';
 
-const apiUrl = import.meta.env.VITE_API_URL;
+const apiUrl = import.meta.env.VITE_MODE != 'production' 
+  ? 'http://localhost:3000' 
+  : import.meta.env.VITE_API_URL || 'https://bantay-presyo-api.vercel.app';
+
 const availableDates = ref([]);
 const selectedDate = ref(null); // Changed to Date object for date picker
 const priceData = ref([]);
+const notes = ref([]);
 const loading = ref(false);
 const error = ref(null);
 const searchQuery = ref('');
@@ -172,6 +175,16 @@ const formatDate = (dateInput) => {
   const year = date.getFullYear();
   return `${month} ${day}, ${year}`; // e.g., "September 2, 2025"
 };
+
+const nonMarketNotes = computed(() => {
+  return notes.value.filter(note => !note.match(/^\d+\.\s/));
+});
+
+const marketNotes = computed(() => {
+  return notes.value
+    .filter(note => note.match(/^\d+\.\s/))
+    .map(note => note.replace(/^\d+\.\s/, '').trim());
+});
 
 // Group price data by category
 const groupedPriceData = computed(() => {
@@ -233,6 +246,7 @@ const fetchData = async () => {
       timeout: 10000,
     });
     priceData.value = response.data.data || [];
+    notes.value = response.data.notes || [];
     if (priceData.value.length === 0) {
       error.value = 'No data found for the selected date.';
     }
