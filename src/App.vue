@@ -142,7 +142,7 @@ import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
 import VueDatePicker from 'vue3-datepicker';
 
-const apiUrl = import.meta.env.VITE_API_URL || 'https://your-vercel-app.vercel.app';
+const apiUrl = import.meta.env.VITE_API_URL || 'https://bantay-presyo-api.vercel.app';
 const availableDates = ref([]);
 const selectedDate = ref(null); // Changed to Date object for date picker
 const priceData = ref([]);
