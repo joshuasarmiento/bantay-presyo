@@ -1,14 +1,16 @@
 <template>
   <div class="min-h-screen bg-neutral-50 dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 p-4 sm:p-8">
-    <header class="text-center mb-8">
-      <h1 class="text-3xl sm:text-4xl font-bold text-neutral-600 dark:text-neutral-400">💸 Bantay Presyo 💸</h1>
-      <p class="text-base font-medium sm:text-lg mt-2 text-neutral-600 dark:text-neutral-400">Monitor prevailing retail prices in
+    <header class="text-start max-w-3xl mx-auto mb-8">
+      <h1 class="text-3xl sm:text-4xl font-bold text-neutral-600 dark:text-neutral-400">💸 Bantay<span
+          class="text-green-400">Presyo</span></h1>
+      <p class="text-base font-medium sm:text-lg mt-2 text-neutral-600 dark:text-neutral-400">Monitor prevailing retail
+        prices in
         the Philippines</p>
     </header>
 
     <main class="max-w-3xl mx-auto">
       <!-- Date Selection and Search -->
-      <div class="flex flex-col lg:flex-row gap-4 bg-white dark:bg-neutral-800 rounded-2xl shadow-md p-4 sm:p-6 mb-6">
+      <div class="flex flex-col lg:flex-row gap-4 bg-white dark:bg-black/20 rounded-2xl p-4 sm:p-6 mb-6">
         <div class="flex flex-col sm:flex-row items-center gap-4">
           <div class="relative w-full sm:w-64">
             <VueDatePicker v-model="selectedDate" :enable-time-picker="false" format="MMMM d, yyyy" :disabled="loading"
@@ -17,7 +19,7 @@
               :options="availableDates.map(link => new Date(link.date))" />
           </div>
           <button @click="fetchData" :disabled="loading || !selectedDate"
-            class="w-full sm:w-auto bg-neutral-600 text-white px-4 sm:px-6 py-2 rounded-2xl hover:bg-neutral-700 disabled:opacity-50 disabled:cursor-not-allowed transition">
+            class="w-full sm:w-auto bg-neutral-800 text-white px-4 sm:px-6 py-2 rounded-2xl hover:bg-neutral-700 disabled:opacity-50 disabled:cursor-not-allowed transition">
             <span v-if="loading" class="flex items-center">
               <svg class="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
@@ -53,7 +55,7 @@
 
       <!-- Loading State (Skeleton) -->
       <div v-if="loading" class="space-y-4">
-        <div class="bg-white dark:bg-neutral-800 rounded-2xl shadow-md p-4 animate-pulse">
+        <div class="bg-white dark:bg-neutral-800 rounded-2xl  p-4 animate-pulse">
           <div class="h-6 bg-neutral-200 dark:bg-neutral-700 rounded-2xl w-1/4 mb-4"></div>
           <div class="space-y-2">
             <div v-for="n in 5" :key="n" class="flex space-x-4">
@@ -67,17 +69,17 @@
 
       <!-- Price Data by Category -->
       <div v-if="priceData.length > 0 && !loading" class="space-y-6">
-        <div v-for="(categoryItems, category) in groupedPriceData" :key="category"
-          class="rounded-2xl shadow-md">
+        <div v-for="(categoryItems, category) in groupedPriceData" :key="category" class="rounded-2xl">
           <h2
-            class="text-lg sm:text-xl font-semibold text-neutral-900 dark:text-neutral-100 bg-neutral-100 dark:bg-neutral-800 px-6 py-3 rounded-t-2xl">
+            class="text-lg sm:text-xl font-semibold text-neutral-900 dark:text-neutral-100 bg-neutral-100 dark:bg-black/20 px-6 py-3 rounded-t-2xl">
             {{ category }}
           </h2>
           <div class="overflow-x-auto">
             <table class="min-w-full">
-              <thead class="bg-neutral-50 dark:bg-neutral-800">
+              <thead class="bg-neutral-50 dark:bg-black/20">
                 <tr>
-                  <th class="hidden md:block px-4 sm:px-6 py-3 text-left text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                  <th
+                    class="hidden md:block px-4 sm:px-6 py-3 text-left text-sm font-semibold text-neutral-900 dark:text-neutral-100">
                     Number</th>
                   <th class="px-4 sm:px-6 py-3 text-left text-sm font-semibold text-neutral-900 dark:text-neutral-100">
                     Commodity</th>
@@ -89,7 +91,7 @@
               </thead>
               <tbody>
                 <tr v-for="item in categoryItems" :key="item.number"
-                  class="border-t border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800">
+                  class="border-t border-neutral-200 dark:border-black/20 hover:bg-neutral-50 dark:hover:bg-black/20">
                   <td class="hidden md:block px-4 sm:px-6 py-4">{{ item.number }}</td>
                   <td class="px-4 sm:px-6 py-4">{{ item.commodity }}</td>
                   <td class="px-4 sm:px-6 py-4">{{ item.specification || 'N/A' }}</td>
@@ -103,16 +105,13 @@
 
       <!-- No Data Message -->
       <p v-else-if="!loading && selectedDate"
-        class="text-center py-8 text-neutral-500 dark:text-neutral-400 bg-white dark:bg-neutral-800 rounded-2xl shadow-md">
+        class="text-center py-8 text-neutral-500 dark:text-neutral-400 bg-white dark:bg-neutral-800 rounded-2xl ">
         No data available for the selected date.
       </p>
 
-      <!-- Footer -->
-      <div
-        class="mt-8 text-sm bg-white dark:bg-neutral-800 rounded-2xl shadow-md p-4 sm:p-6">
-        <p>Prevailing price is defined as the average price at which any basic necessity has been sold in a given area,
-          computed using the arithmetic mean formula.</p>
-        <p class="mt-4 font-semibold">Covered Markets:</p>
+      <div class="mt-8 text-sm bg-white dark:bg-black/20 rounded-2xl p-4 sm:p-6 grainy motion-safe:animate-slide-up">
+        <p>The prevailing price is calculated as the average cost of essential goods sold in a specific area, determined using the arithmetic mean.</p>
+        <p class="mt-4 font-semibold">Markets Monitored:</p>
         <ol class="list-decimal list-inside ml-4">
           <li>Commonwealth Market</li>
           <li>New Las Piñas City Public Market</li>
@@ -125,21 +124,27 @@
         <p class="mt-4">
           Data Source:
           <a href="https://www.da.gov.ph/price-monitoring/" target="_blank"
-            class="text-blue-600 dark:text-blue-400 hover:underline">
+            class="text-black dark:text-white hover:underline">
             Department of Agriculture Price Monitoring
           </a>
         </p>
       </div>
 
-      <footer class="px-4 pt-4 pb-8 text-center text-foreground mt-8">
-        <span class="text-sm text-muted-foreground">
-          This is an independent project and not an official DA service.
+      <p class="mt-4 text-sm text-gray-500">
+        Spotted a problem or want to share feedback? Reach out to me on <a
+          href="https://m.me/joshsarmiento22" target="_blank" rel="noreferrer noopener"
+          class="text-blue-600 underline hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">Facebook Messenger</a>.
+      </p>
+
+      <footer class="px-4 pt-4 pb-8 text-center text-gray-900 dark:text-gray-100 mt-8">
+        <span class="text-sm text-gray-500">
+          This is an independent project and not affiliated with the Department of Agriculture.
         </span><br>
         <span>
           © 2025 BantayPresyo. All rights reserved.
         </span>
       </footer>
-    </main>
+      </main>
   </div>
 </template>
 
