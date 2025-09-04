@@ -124,7 +124,7 @@
         <p class="mt-4">
           Data Source:
           <a href="https://www.da.gov.ph/price-monitoring/" target="_blank"
-            class="text-black dark:text-white hover:underline">
+            class="text-blue-600 underline hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:underline">
             Department of Agriculture Price Monitoring
           </a>
         </p>
