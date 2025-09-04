@@ -3,9 +3,8 @@
     <header class="text-start max-w-3xl mx-auto mb-8">
       <h1 class="text-3xl sm:text-4xl font-bold text-neutral-600 dark:text-neutral-400">💸 Bantay<span
           class="text-green-400">Presyo</span></h1>
-      <p class="text-base font-medium sm:text-lg mt-2 text-neutral-600 dark:text-neutral-400">Monitor prevailing retail
-        prices in
-        the Philippines</p>
+      <p class="text-base font-medium sm:text-lg mt-2 text-neutral-600 dark:text-neutral-400">
+        Monitor prevailing retail prices in the Philippines (NCR)</p>
     </header>
 
     <main class="max-w-3xl mx-auto">
@@ -46,77 +45,79 @@
         </div>
       </div>
 
-      <!-- Error Message -->
-      <div v-if="error"
-        class="bg-red-100 dark:bg-red-900 border-l-4 border-red-500 dark:border-red-700 text-red-700 dark:text-red-300 p-4 rounded-2xl mb-6">
-        <p class="font-semibold">Error</p>
-        <p>{{ error }}</p>
-      </div>
+      <div class="">
+        <!-- Error Message -->
+        <div v-if="error"
+          class="bg-red-100 dark:bg-red-900 border-l-4 border-red-500 dark:border-red-700 text-red-700 dark:text-red-300 p-4 rounded-2xl mb-6">
+          <p class="font-semibold">Error</p>
+          <p>{{ error }}</p>
+        </div>
 
-      <!-- Loading State (Skeleton) -->
-      <div v-if="loading" class="space-y-4">
-        <div class="bg-white dark:bg-neutral-800 rounded-2xl  p-4 animate-pulse">
-          <div class="h-6 bg-neutral-200 dark:bg-neutral-700 rounded-2xl w-1/4 mb-4"></div>
-          <div class="space-y-2">
-            <div v-for="n in 5" :key="n" class="flex space-x-4">
-              <div class="h-4 bg-neutral-200 dark:bg-neutral-700 rounded-2xl w-1/4"></div>
-              <div class="h-4 bg-neutral-200 dark:bg-neutral-700 rounded-2xl w-1/2"></div>
-              <div class="h-4 bg-neutral-200 dark:bg-neutral-700 rounded-2xl w-1/4"></div>
+        <!-- Loading State (Skeleton) -->
+        <div v-if="loading" class="space-y-4">
+          <div class="bg-white dark:bg-neutral-800 rounded-2xl  p-4 animate-pulse">
+            <div class="h-6 bg-neutral-200 dark:bg-neutral-700 rounded-2xl w-1/4 mb-4"></div>
+            <div class="space-y-2">
+              <div v-for="n in 5" :key="n" class="flex space-x-4">
+                <div class="h-4 bg-neutral-200 dark:bg-neutral-700 rounded-2xl w-1/4"></div>
+                <div class="h-4 bg-neutral-200 dark:bg-neutral-700 rounded-2xl w-1/2"></div>
+                <div class="h-4 bg-neutral-200 dark:bg-neutral-700 rounded-2xl w-1/4"></div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Price Data by Category -->
-      <div v-if="priceData.length > 0 && !loading" class="space-y-6">
-        <div v-for="(categoryItems, category) in groupedPriceData" :key="category" class="rounded-2xl">
-          <h2
-            class="text-lg sm:text-xl font-semibold text-neutral-900 dark:text-neutral-100 bg-neutral-100 dark:bg-black/20 px-6 py-3 rounded-t-2xl">
-            {{ category }}
-          </h2>
-          <div class="overflow-x-auto">
-            <table class="min-w-full">
-              <thead class="bg-neutral-50 dark:bg-black/20">
-                <tr>
-                  <th
-                    class="hidden md:block px-4 sm:px-6 py-3 text-left text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-                    Number</th>
-                  <th class="px-4 sm:px-6 py-3 text-left text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-                    Commodity</th>
-                  <th class="px-4 sm:px-6 py-3 text-left text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-                    Specification</th>
-                  <th class="px-4 sm:px-6 py-3 text-left text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-                    Price (₱/UNIT)</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="item in categoryItems" :key="item.number"
-                  class="border-t border-neutral-200 dark:border-black/20 hover:bg-neutral-50 dark:hover:bg-black/20">
-                  <td class="hidden md:block px-4 sm:px-6 py-4">{{ item.number }}</td>
-                  <td class="px-4 sm:px-6 py-4">{{ item.commodity }}</td>
-                  <td class="px-4 sm:px-6 py-4">{{ item.specification || 'N/A' }}</td>
-                  <td class="px-4 sm:px-6 py-4 font-medium">{{ item.price }}</td>
-                </tr>
-              </tbody>
-            </table>
+        <!-- Price Data by Category -->
+        <div v-if="priceData.length > 0 && !loading" class="space-y-6">
+          <div v-for="(categoryItems, category) in groupedPriceData" :key="category" class="rounded-2xl">
+            <h2
+              class="text-lg sm:text-xl font-semibold text-neutral-900 dark:text-neutral-100 bg-neutral-100 dark:bg-black/20 px-6 py-3 rounded-t-2xl">
+              {{ category }}
+            </h2>
+            <div class="overflow-x-auto">
+              <table class="min-w-full">
+                <thead class="bg-neutral-50 dark:bg-black/20">
+                  <tr>
+                    <th
+                      class="hidden md:block px-4 sm:px-6 py-3 text-left text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                      Number</th>
+                    <th class="px-4 sm:px-6 py-3 text-left text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                      Commodity</th>
+                    <th class="px-4 sm:px-6 py-3 text-left text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                      Specification</th>
+                    <th class="px-4 sm:px-6 py-3 text-left text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                      Price (₱/UNIT)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="item in categoryItems" :key="item.number"
+                    class="border-t border-neutral-200 dark:border-black/20 hover:bg-neutral-50 dark:hover:bg-black/20">
+                    <td class="hidden md:block px-4 sm:px-6 py-4">{{ item.number }}</td>
+                    <td class="px-4 sm:px-6 py-4">{{ item.commodity }}</td>
+                    <td class="px-4 sm:px-6 py-4">{{ item.specification || 'N/A' }}</td>
+                    <td class="px-4 sm:px-6 py-4 font-medium">{{ item.price }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- No Data Message -->
-      <p v-else-if="!loading && selectedDate"
-        class="text-center py-8 text-neutral-500 dark:text-neutral-400 bg-white dark:bg-neutral-800 rounded-2xl ">
-        No data available for the selected date.
-      </p>
+        <!-- No Data Message -->
+        <p v-else-if="!loading && selectedDate"
+          class="text-center py-8 text-neutral-500 dark:text-neutral-400 bg-white dark:bg-neutral-800 rounded-2xl ">
+          No data available for the selected date.
+        </p>
 
-      <div v-if="priceData.length > 0 && !loading" class="mt-8 text-sm bg-white dark:bg-black/20 rounded-2xl p-4 sm:p-6 grainy motion-safe:animate-slide-up">
-        <p>Note(s):</p>
-        <div v-if="notes.length > 0" class="mt-4">
-          <p v-for="note in nonMarketNotes" :key="note" class="mb-2">{{ note }}</p>
-          <p v-if="marketNotes.length > 0" class="mt-4 font-semibold">Covered Markets:</p>
-          <ol class="list-decimal list-outside ml-6 mt-2">
-            <li v-for="market in marketNotes" :key="market">{{ market }}</li>
-          </ol>
+        <div v-if="priceData.length > 0 && !loading" class="mt-8 text-sm bg-white dark:bg-black/20 rounded-2xl p-4 sm:p-6 grainy motion-safe:animate-slide-up">
+          <p>Note(s):</p>
+          <div v-if="notes.length > 0" class="mt-4">
+            <p v-for="note in nonMarketNotes" :key="note" class="mb-2">{{ note }}</p>
+            <p v-if="marketNotes.length > 0" class="mt-4 font-semibold">Covered Markets:</p>
+            <ol class="list-decimal list-outside ml-6 mt-2">
+              <li v-for="market in marketNotes" :key="market">{{ market }}</li>
+            </ol>
+          </div>
         </div>
       </div>
 
@@ -151,6 +152,8 @@
 import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
 import VueDatePicker from 'vue3-datepicker';
+
+// const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
 const apiUrl = import.meta.env.VITE_API_URL || 'https://bantay-presyo-api.vercel.app'
 const availableDates = ref([]);
@@ -188,20 +191,42 @@ const groupedPriceData = computed(() => {
   const grouped = {};
   const filtered = searchQuery.value
     ? priceData.value.filter(item =>
-      item.commodity.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      item.specification.toLowerCase().includes(searchQuery.value.toLowerCase())
-    )
+        item.commodity.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+        item.specification.toLowerCase().includes(searchQuery.value.toLowerCase())
+      )
     : priceData.value;
 
   filtered.forEach(item => {
     const category = item.category || 'UNKNOWN';
     if (!grouped[category]) grouped[category] = [];
     grouped[category].push(item);
+    // Sort items within each category by number
+    grouped[category].sort((a, b) => parseInt(a.number, 10) - parseInt(b.number, 10));
   });
 
-  // Sort categories alphabetically
+  const categoryOrder = [
+    'IMPORTED COMMERCIAL RICE',
+    'LOCAL COMMERCIAL RICE',
+    'CORN',
+    'FISH',
+    'LIVESTOCK & POULTRY PRODUCTS',
+    'LOWLAND VEGETABLES',
+    'HIGHLAND VEGETABLES',
+    'SPICES',
+    'FRUITS',
+    'OTHER BASIC COMMODITIES',
+    'UNKNOWN' // Include UNKNOWN to handle any unmatched categories
+  ];
+
   return Object.fromEntries(
-    Object.entries(grouped).sort(([a], [b]) => a.localeCompare(b))
+    Object.entries(grouped).sort(([a], [b]) => {
+      const indexA = categoryOrder.indexOf(a);
+      const indexB = categoryOrder.indexOf(b);
+      // Handle cases where category is not in categoryOrder
+      if (indexA === -1) return 1; // Push unknown categories to the end
+      if (indexB === -1) return -1;
+      return indexA - indexB;
+    })
   );
 });
 
