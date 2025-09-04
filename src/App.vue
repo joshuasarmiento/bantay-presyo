@@ -154,7 +154,7 @@ import axios from 'axios';
 import VueDatePicker from 'vue3-datepicker';
 
 // const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
-
+const apiKey = import.meta.env.VITE_API_KEY || 'vldqKFnIG2IHawV8lPsOjEgoG6zmkEay7u7f2IUr5pGQL9bO63PkU0iCVZPwRQ4atO1sX86Yt2LYqwjFjQKD8Ek835apFjgjWGY4mrkhA0CB0Xbwm1YOWi86KKbLc5nK'; // Set in .env
 const apiUrl = import.meta.env.VITE_API_URL || 'https://bantay-presyo-api.vercel.app'
 const availableDates = ref([]);
 const selectedDate = ref(null); // Changed to Date object for date picker
@@ -236,20 +236,21 @@ const fetchAvailableDates = async (retries = 3, delay = 1000) => {
       loading.value = true;
       error.value = null;
       const response = await axios.get(`${apiUrl}/daily_links?limit=20`, {
-        timeout: 10000,
+        timeout: 30000,
+        headers: { Authorization: `Bearer ${apiKey}` }
       });
       availableDates.value = response.data;
       if (availableDates.value.length > 0) {
-        selectedDate.value = new Date(availableDates.value[0].date); // Default to latest
-        await fetchData(); // Auto-fetch for default
+        selectedDate.value = new Date(availableDates.value[0].date);
+        await fetchData();
       } else {
         error.value = 'No dates available. Please try again later or check backend logs.';
       }
       return;
     } catch (err) {
-      console.error(`Attempt ${attempt} failed:`, err);
+      console.error(`Attempt ${attempt} failed:`, err.message);
       if (attempt === retries) {
-        error.value = `Failed to load dates: ${err.message}.`;
+        error.value = `Failed to load dates: ${err.message}. Please check if the backend server is running at ${apiUrl}.`;
       }
       await new Promise(resolve => setTimeout(resolve, delay));
     } finally {
@@ -265,7 +266,8 @@ const fetchData = async () => {
     error.value = null;
     const formattedDate = formatDate(selectedDate.value);
     const response = await axios.get(`${apiUrl}/data?date=${encodeURIComponent(formattedDate)}`, {
-      timeout: 10000,
+      timeout: 30000,
+      headers: { Authorization: `Bearer ${apiKey}` }
     });
     priceData.value = response.data.data || [];
     notes.value = response.data.notes || [];
@@ -273,8 +275,8 @@ const fetchData = async () => {
       error.value = 'No data found for the selected date.';
     }
   } catch (err) {
-    console.error('Data fetch error:', err);
-    error.value = `Failed to fetch data: ${err.message}. Please try a different date.`;
+    console.error('Data fetch error:', err.message);
+    error.value = `Failed to fetch data: ${err.message}. Please check if the backend server is running at ${apiUrl} or try a different date.`;
   } finally {
     loading.value = false;
   }
