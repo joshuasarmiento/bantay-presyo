@@ -196,7 +196,7 @@ const fetchAvailableDates = async (retries = 3, delay = 1000) => {
     } catch (err) {
       console.error(`Attempt ${attempt} failed:`, err);
       if (attempt === retries) {
-        error.value = `Failed to load dates: ${err.message}. Please check your network or contact support.`;
+        error.value = `Failed to load dates: ${err.message}.`;
       }
       await new Promise(resolve => setTimeout(resolve, delay));
     } finally {
