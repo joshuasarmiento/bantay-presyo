@@ -236,14 +236,45 @@ const fetchAvailableDates = async (retries = 3, delay = 1000) => {
     try {
       loading.value = true;
       error.value = null;
-      const response = await axios.get(`${apiUrl}/sproxy?endpoint=daily_links&limit=20`, {
+      const response = await axios.get(`${apiUrl}/proxy?endpoint=daily_links&limit=20`, {
         timeout: 30000,
         headers: { Authorization: `Bearer ${apiKey}` }
       });
       availableDates.value = response.data;
+      
       if (availableDates.value.length > 0) {
-        selectedDate.value = new Date(availableDates.value[0].date);
-        await fetchData();
+        // Try to find a date with existing data by checking the first few dates
+        let dateWithData = null;
+        
+        for (const dateLink of availableDates.value.slice(0, 5)) { // Check first 5 dates
+          try {
+            const formattedDate = formatDate(new Date(dateLink.date));
+            const testResponse = await axios.get(`${apiUrl}/proxy?endpoint=data&date=${encodeURIComponent(formattedDate)}`, {
+              timeout: 15000,
+              headers: { Authorization: `Bearer ${apiKey}` }
+            });
+            
+            // If we get data and it's not empty, use this date
+            if (testResponse.data.data && testResponse.data.data.length > 0) {
+              dateWithData = new Date(dateLink.date);
+              priceData.value = testResponse.data.data;
+              notes.value = testResponse.data.notes || [];
+              break;
+            }
+          } catch (testError) {
+            // Continue to next date if this one fails
+            console.log(`No data found for ${dateLink.date}, trying next...`);
+            continue;
+          }
+        }
+        
+        if (dateWithData) {
+          selectedDate.value = dateWithData;
+        } else {
+          // If no date has data, still set the first date but don't auto-fetch
+          selectedDate.value = new Date(availableDates.value[0].date);
+          error.value = 'No recent data available. Please select a date manually.';
+        }
       } else {
         error.value = 'No dates available. Please try again later or check backend logs.';
       }
