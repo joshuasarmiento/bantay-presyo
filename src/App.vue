@@ -9,7 +9,7 @@
 
     <main class="max-w-3xl mx-auto">
       <!-- Date Selection and Search -->
-      <div class="flex flex-col lg:flex-row gap-4 bg-white dark:bg-black/20 rounded-2xl p-4 sm:p-6 mb-6">
+      <div class="flex flex-col lg:flex-row gap-4 bg-white dark:bg-neutral-800 rounded-2xl p-4 sm:p-6 mb-6">
         <div class="flex flex-col sm:flex-row items-center gap-4">
           <div class="relative w-full sm:w-64">
             <VueDatePicker v-model="selectedDate" :enable-time-picker="false" format="MMMM d, yyyy" :disabled="loading"
@@ -18,7 +18,7 @@
               :options="availableDates.map(link => new Date(link.date))" />
           </div>
           <button @click="fetchData" :disabled="loading || !selectedDate"
-            class="w-full sm:w-auto bg-neutral-800 text-white px-4 sm:px-6 py-2 rounded-2xl hover:bg-neutral-700 disabled:opacity-50 disabled:cursor-not-allowed transition">
+            class="w-full sm:w-auto bg-neutral-700 text-white px-4 sm:px-6 py-2 rounded-2xl hover:bg-neutral-900 disabled:opacity-50 disabled:cursor-not-allowed transition">
             <span v-if="loading" class="flex items-center">
               <svg class="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
@@ -30,7 +30,7 @@
             <span v-else>Search</span>
           </button>
           <button v-if="error" @click="fetchAvailableDates"
-            class="w-full sm:w-auto bg-yellow-600 text-white px-4 sm:px-6 py-2 rounded-2xl hover:bg-yellow-700 transition">
+            class="w-full sm:w-auto bg-green-700 text-white px-4 sm:px-6 py-2 rounded-2xl hover:bg-green-800 transition">
             Retry
           </button>
         </div>
@@ -48,7 +48,7 @@
       <div class="">
         <!-- Error Message -->
         <div v-if="error"
-          class="bg-red-100 dark:bg-red-900 border-l-4 border-red-500 dark:border-red-700 text-red-700 dark:text-red-300 p-4 rounded-2xl mb-6">
+          class="bg-red-100 dark:bg-red-800 text-red-700 dark:text-red-300 p-4 rounded-2xl mb-6">
           <p class="font-semibold">Error</p>
           <p>{{ error }}</p>
         </div>
@@ -68,15 +68,15 @@
         </div>
 
         <!-- Price Data by Category -->
-        <div v-if="priceData.length > 0 && !loading" class="space-y-6">
+        <div v-if="priceData.length > 0 && !loading && !error" class="space-y-6">
           <div v-for="(categoryItems, category) in groupedPriceData" :key="category" class="rounded-2xl">
             <h2
-              class="text-lg sm:text-xl font-semibold text-neutral-900 dark:text-neutral-100 bg-neutral-100 dark:bg-black/20 px-6 py-3 rounded-t-2xl">
+              class="text-lg sm:text-xl font-semibold text-neutral-900 dark:text-neutral-100 bg-neutral-100 dark:bg-neutral-800 px-6 py-3 rounded-t-2xl">
               {{ category }}
             </h2>
             <div class="overflow-x-auto">
               <table class="min-w-full">
-                <thead class="bg-neutral-50 dark:bg-black/20">
+                <thead class="bg-neutral-50 dark:bg-neutral-800">
                   <tr>
                     <th
                       class="hidden md:block px-4 sm:px-6 py-3 text-left text-sm font-semibold text-neutral-900 dark:text-neutral-100">
@@ -91,7 +91,7 @@
                 </thead>
                 <tbody>
                   <tr v-for="item in categoryItems" :key="item.number"
-                    class="border-t border-neutral-200 dark:border-black/20 hover:bg-neutral-50 dark:hover:bg-black/20">
+                    class="border-t border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800">
                     <td class="hidden md:block px-4 sm:px-6 py-4">{{ item.number }}</td>
                     <td class="px-4 sm:px-6 py-4">{{ item.commodity }}</td>
                     <td class="px-4 sm:px-6 py-4">{{ item.specification || 'N/A' }}</td>
@@ -103,13 +103,7 @@
           </div>
         </div>
 
-        <!-- No Data Message -->
-        <p v-else-if="!loading && selectedDate"
-          class="text-center py-8 text-neutral-500 dark:text-neutral-400 bg-white dark:bg-neutral-800 rounded-2xl ">
-          No data available for the selected date.
-        </p>
-
-        <div v-if="priceData.length > 0 && !loading" class="mt-8 text-sm bg-white dark:bg-black/20 rounded-2xl p-4 sm:p-6 grainy motion-safe:animate-slide-up">
+        <div v-if="priceData.length > 0 && !loading && !error" class="mt-8 text-sm bg-white dark:bg-neutral-800 rounded-2xl p-4 sm:p-6 grainy motion-safe:animate-slide-up">
           <p>Note(s):</p>
           <div v-if="notes.length > 0" class="mt-4">
             <p v-for="note in nonMarketNotes" :key="note" class="mb-2">{{ note }}</p>
@@ -119,9 +113,15 @@
             </ol>
           </div>
         </div>
+
+        <!-- No Data Message -->
+        <p v-else-if="!loading && selectedDate"
+          class="text-center py-8 text-neutral-500 dark:text-neutral-400 bg-white dark:bg-neutral-800 rounded-2xl ">
+          No data available for the selected date.
+        </p>
       </div>
 
-      <p class="mt-4 flex flex-col gap-1 text-sm text-gray-500">
+      <p class="mt-6 flex flex-col gap-1 text-sm text-gray-500">
         <span>
           Data Source:
           <a href="https://www.da.gov.ph/price-monitoring/" target="_blank"
@@ -154,7 +154,8 @@ import axios from 'axios';
 import VueDatePicker from 'vue3-datepicker';
 
 // const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
-const apiKey = import.meta.env.VITE_API_KEY || 'vldqKFnIG2IHawV8lPsOjEgoG6zmkEay7u7f2IUr5pGQL9bO63PkU0iCVZPwRQ4atO1sX86Yt2LYqwjFjQKD8Ek835apFjgjWGY4mrkhA0CB0Xbwm1YOWi86KKbLc5nK'; // Set in .env
+// const apiUrl = import.meta.env.VITE_API_URL || 'https://bantay-presyo-api.vercel.app'
+const apiKey = import.meta.env.VITE_API_KEY || 'vldqKFnIG2IHawV8lPsOjEgoG6zmkEay7u7f2IUr5pGQL9bO63PkU0iCVZPwRQ4atO1sX86Yt2LYqwjFjQKD8Ek835apFjgjWGY4mrkhA0CB0Xbwm1YOWi86KKbLc5nK';
 const apiUrl = import.meta.env.VITE_API_URL || 'https://bantay-presyo-api.vercel.app'
 const availableDates = ref([]);
 const selectedDate = ref(null); // Changed to Date object for date picker
@@ -235,8 +236,9 @@ const fetchAvailableDates = async (retries = 3, delay = 1000) => {
     try {
       loading.value = true;
       error.value = null;
-      const response = await axios.get(`${apiUrl}/proxy?endpoint=daily_links&limit=20`, {
-        timeout: 30000
+      const response = await axios.get(`${apiUrl}/sproxy?endpoint=daily_links&limit=20`, {
+        timeout: 30000,
+        headers: { Authorization: `Bearer ${apiKey}` }
       });
       availableDates.value = response.data;
       if (availableDates.value.length > 0) {
@@ -249,7 +251,7 @@ const fetchAvailableDates = async (retries = 3, delay = 1000) => {
     } catch (err) {
       console.error(`Attempt ${attempt} failed:`, err.message);
       if (attempt === retries) {
-        error.value = `Failed to load dates: ${err.message}. Please check if the backend server is running at ${apiUrl}.`;
+        error.value = `Failed to load dates: ${err.message}.`;
       }
       await new Promise(resolve => setTimeout(resolve, delay));
     } finally {
@@ -266,7 +268,8 @@ const fetchData = async () => {
     error.value = null;
     const formattedDate = formatDate(selectedDate.value);
     const response = await axios.get(`${apiUrl}/proxy?endpoint=data&date=${encodeURIComponent(formattedDate)}`, {
-      timeout: 30000
+      timeout: 30000,
+      headers: { Authorization: `Bearer ${apiKey}` }
     });
     priceData.value = response.data.data || [];
     notes.value = response.data.notes || [];
@@ -275,7 +278,7 @@ const fetchData = async () => {
     }
   } catch (err) {
     console.error('Data fetch error:', err.message);
-    error.value = `Failed to fetch data: ${err.message}. Please check if the backend server is running at ${apiUrl} or try a different date.`;
+    error.value = `Failed to fetch data: ${err.message}.`;
   } finally {
     loading.value = false;
   }
