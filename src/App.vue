@@ -80,7 +80,7 @@ import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
 import VueDatePicker from 'vue3-datepicker';
 
-const apiUrl = 'http://localhost:3000';
+const apiUrl = 'https://bantay-presyo-api.vercel.app';
 const apiKey = 'vldqKFnIG2IHawV8lPsOjEgoG6zmkEay7u7f2IUr5pGQL9bO63PkU0iCVZPwRQ4atO1sX86Yt2LYqwjFjQKD8Ek835apFjgjWGY4mrkhA0CB0Xbwm1YOWi86KKbLc5nK';
 
 const selectedDate = ref(new Date());
