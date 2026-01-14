@@ -1,150 +1,77 @@
 <template>
-  <div class="min-h-screen bg-neutral-50 dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 p-4 sm:p-8">
-    <header class="text-start max-w-3xl mx-auto mb-8">
-      <h1 class="text-3xl sm:text-4xl font-bold text-neutral-600 dark:text-neutral-400">💸 Bantay<span
-          class="text-green-400">Presyo</span></h1>
-      <p class="text-base font-medium sm:text-lg mt-2 text-neutral-600 dark:text-neutral-400">
-        Monitor prevailing retail prices in the Philippines (NCR)</p>
-    </header>
+  <div class="min-h-screen bg-[#FDFDFD] text-slate-900 font-sans p-4 md:p-12">
+    <div class="max-w-5xl mx-auto">
+      <header class="mb-12 text-center md:text-left">
+        <h1 class="text-4xl font-black tracking-tight text-slate-800">
+          Bantay<span class="text-emerald-600">Presyo</span>
+        </h1>
+        <p class="text-slate-500 font-medium mt-1">NCR Agri-Fishery Retail Prices</p>
+      </header>
 
-    <main class="max-w-3xl mx-auto">
-      <!-- Date Selection and Search -->
-      <div class="flex flex-col lg:flex-row gap-4 bg-white dark:bg-neutral-800 rounded-2xl p-4 sm:p-6 mb-6">
-        <div class="flex flex-col sm:flex-row items-center gap-4">
-          <div class="relative w-full sm:w-64">
-            <VueDatePicker v-model="selectedDate" :enable-time-picker="false" format="MMMM d, yyyy" :disabled="loading"
-              placeholder="Select a date"
-              class="w-full bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-2xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-neutral-500"
-              :options="availableDates.map(link => new Date(link.date))" />
-          </div>
-          <button @click="fetchData" :disabled="loading || !selectedDate"
-            class="w-full sm:w-auto bg-neutral-700 text-white px-4 sm:px-6 py-2 rounded-2xl hover:bg-neutral-900 disabled:opacity-50 disabled:cursor-not-allowed transition">
-            <span v-if="loading" class="flex items-center">
-              <svg class="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-                <path class="opacity-75" fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-              </svg>
-              Loading...
-            </span>
-            <span v-else>Search</span>
-          </button>
-          <button v-if="error" @click="fetchAvailableDates"
-            class="w-full sm:w-auto bg-green-700 text-white px-4 sm:px-6 py-2 rounded-2xl hover:bg-green-800 transition">
-            Retry
-          </button>
+      <div class="bg-white border border-slate-200 shadow-sm rounded-3xl p-6 mb-10 flex flex-col md:flex-row gap-4 items-center">
+        <div class="w-full md:w-72 border p-2.5 rounded-lg">
+          <VueDatePicker v-model="selectedDate" :enable-time-picker="false" placeholder="Select Date" class=""/>
         </div>
-        <div class="w-full relative lg:ml-12">
-          <input v-model="searchQuery" type="text" placeholder="Search commodities..."
-            class="w-full bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-2xl pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-neutral-500" />
-          <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-neutral-400" fill="none"
-            stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
+        <button @click="fetchData" :disabled="loading" 
+          class="w-full md:w-auto px-8 py-2.5 bg-slate-900 text-white rounded-xl font-bold hover:bg-emerald-600 transition-all disabled:opacity-50">
+          {{ loading ? 'Updating...' : 'Search' }}
+        </button>
+        <div class="flex-grow relative w-full">
+          <input v-model="searchQuery" placeholder="Search commodity (e.g. Rice, Tilapia)..." 
+            class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none transition" />
+          <span class="absolute left-3 top-3 text-slate-400">🔍</span>
         </div>
       </div>
 
-      <div class="">
-        <!-- Error Message -->
-        <div v-if="error"
-          class="bg-red-100 dark:bg-red-800 text-red-700 dark:text-red-300 p-4 rounded-2xl mb-6">
-          <p class="font-semibold">Error</p>
-          <p>{{ error }}</p>
-        </div>
-
-        <!-- Loading State (Skeleton) -->
-        <div v-if="loading" class="space-y-4">
-          <div class="bg-white dark:bg-neutral-800 rounded-2xl  p-4 animate-pulse">
-            <div class="h-6 bg-neutral-200 dark:bg-neutral-700 rounded-2xl w-1/4 mb-4"></div>
-            <div class="space-y-2">
-              <div v-for="n in 5" :key="n" class="flex space-x-4">
-                <div class="h-4 bg-neutral-200 dark:bg-neutral-700 rounded-2xl w-1/4"></div>
-                <div class="h-4 bg-neutral-200 dark:bg-neutral-700 rounded-2xl w-1/2"></div>
-                <div class="h-4 bg-neutral-200 dark:bg-neutral-700 rounded-2xl w-1/4"></div>
+      <div v-if="Object.keys(groupedData).length" class="space-y-12">
+        <section v-for="(items, cat) in groupedData" :key="cat" class="animate-in">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="h-px flex-grow bg-slate-200"></div>
+            <h2 class="text-xs font-black tracking-widest text-slate-400 uppercase whitespace-nowrap">{{ cat }}</h2>
+            <div class="h-px flex-grow bg-slate-200"></div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div v-for="item in items" :key="item.commodity" 
+              class="bg-white border border-slate-100 p-5 rounded-2xl hover:border-emerald-200 hover:shadow-md transition-all group">
+              <div class="flex justify-between items-start gap-4">
+                <div>
+                  <h3 class="font-bold text-slate-700 leading-tight">{{ item.commodity }}</h3>
+                  <p class="text-xs text-slate-400 mt-1 uppercase">{{ item.specification || 'Standard' }}</p>
+                </div>
+                <div class="text-right">
+                  <span class="text-lg font-black text-slate-900">₱{{ item.price }}</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-
-        <!-- Price Data by Category -->
-        <div v-if="priceData.length > 0 && !loading && !error" class="space-y-6">
-          <div v-for="(categoryItems, category) in groupedPriceData" :key="category" class="rounded-2xl">
-            <h2
-              class="text-lg sm:text-xl font-semibold text-neutral-900 dark:text-neutral-100 bg-neutral-100 dark:bg-neutral-800 px-6 py-3 rounded-t-2xl">
-              {{ category }}
-            </h2>
-            <div class="overflow-x-auto">
-              <table class="min-w-full">
-                <thead class="bg-neutral-50 dark:bg-neutral-800">
-                  <tr>
-                    <th
-                      class="hidden md:block px-4 sm:px-6 py-3 text-left text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-                      Number</th>
-                    <th class="px-4 sm:px-6 py-3 text-left text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-                      Commodity</th>
-                    <th class="px-4 sm:px-6 py-3 text-left text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-                      Specification</th>
-                    <th class="px-4 sm:px-6 py-3 text-left text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-                      Price (₱/UNIT)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="item in categoryItems" :key="item.number"
-                    class="border-t border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800">
-                    <td class="hidden md:block px-4 sm:px-6 py-4">{{ item.number }}</td>
-                    <td class="px-4 sm:px-6 py-4">{{ item.commodity }}</td>
-                    <td class="px-4 sm:px-6 py-4">{{ item.specification || 'N/A' }}</td>
-                    <td class="px-4 sm:px-6 py-4 font-medium">{{ item.price }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <div v-if="priceData.length > 0 && !loading && !error" class="mt-8 text-sm bg-white dark:bg-neutral-800 rounded-2xl p-4 sm:p-6 grainy motion-safe:animate-slide-up">
-          <p>Note(s):</p>
-          <div v-if="notes.length > 0" class="mt-4">
-            <p v-for="note in nonMarketNotes" :key="note" class="mb-2">{{ note }}</p>
-            <p v-if="marketNotes.length > 0" class="mt-4 font-semibold">Covered Markets:</p>
-            <ol class="list-decimal list-outside ml-6 mt-2">
-              <li v-for="market in marketNotes" :key="market">{{ market }}</li>
-            </ol>
-          </div>
-        </div>
-
-        <!-- No Data Message -->
-        <p v-else-if="!loading && selectedDate"
-          class="text-center py-8 text-neutral-500 dark:text-neutral-400 bg-white dark:bg-neutral-800 rounded-2xl ">
-          No data available for the selected date.
-        </p>
+        </section>
       </div>
 
-      <p class="mt-6 flex flex-col gap-1 text-sm text-gray-500">
-        <span>
-          Data Source:
-          <a href="https://www.da.gov.ph/price-monitoring/" target="_blank"
-            class="text-blue-600 underline hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:underline">
-            Department of Agriculture Price Monitoring
-          </a>
-        </span>
-       <span>
-         Spotted a problem or want to share feedback? Reach out to me on <a
-          href="https://m.me/joshsarmiento22" target="_blank" rel="noreferrer noopener"
-          class="text-blue-600 underline hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">Facebook Messenger</a>.
-       </span>
-      </p>
-
-      <footer class="px-4 pt-4 pb-8 text-center text-gray-900 dark:text-gray-100 mt-8">
-        <span class="text-sm text-gray-500">
-          This is an independent project and not affiliated with the Department of Agriculture.
-        </span><br>
-        <span>
-          © 2025 BantayPresyo. All rights reserved.
-        </span>
+      <footer class="mt-20 pt-10 border-t border-slate-200 text-center">
+        <div class="space-y-4 text-sm text-slate-500">
+          <p>
+            Data Source: 
+            <a href="https://www.da.gov.ph/price-monitoring/" target="_blank" class="text-emerald-600 font-bold hover:underline">
+              Department of Agriculture Price Monitoring
+            </a>
+          </p>
+          <p>
+            Spotted a problem or want to share feedback? Reach out to me on 
+            <a href="https://www.facebook.com/joshsarmiento22/" target="_blank" class="text-emerald-600 font-bold hover:underline">
+              Facebook
+            </a>.
+          </p>
+          <div class="pt-4 border-t border-slate-100 max-w-xs mx-auto">
+            <p class="italic text-xs opacity-75">
+              This is an independent project and not affiliated with the Department of Agriculture.
+            </p>
+            <p class="font-bold mt-2 text-slate-400">
+              © 2025 BantayPresyo. All rights reserved.
+            </p>
+          </div>
+        </div>
       </footer>
-      </main>
+    </div>
   </div>
 </template>
 
@@ -153,169 +80,49 @@ import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
 import VueDatePicker from 'vue3-datepicker';
 
-// const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
-// const apiUrl = import.meta.env.VITE_API_URL || 'https://bantay-presyo-api.vercel.app'
-const apiKey = import.meta.env.VITE_API_KEY || 'vldqKFnIG2IHawV8lPsOjEgoG6zmkEay7u7f2IUr5pGQL9bO63PkU0iCVZPwRQ4atO1sX86Yt2LYqwjFjQKD8Ek835apFjgjWGY4mrkhA0CB0Xbwm1YOWi86KKbLc5nK';
-const apiUrl = import.meta.env.VITE_API_URL || 'https://bantay-presyo-api.vercel.app'
-const availableDates = ref([]);
-const selectedDate = ref(null); // Changed to Date object for date picker
+const apiUrl = 'http://localhost:3000';
+const apiKey = 'vldqKFnIG2IHawV8lPsOjEgoG6zmkEay7u7f2IUr5pGQL9bO63PkU0iCVZPwRQ4atO1sX86Yt2LYqwjFjQKD8Ek835apFjgjWGY4mrkhA0CB0Xbwm1YOWi86KKbLc5nK';
+
+const selectedDate = ref(new Date());
 const priceData = ref([]);
-const notes = ref([]);
 const loading = ref(false);
-const error = ref(null);
 const searchQuery = ref('');
 
-const formatDate = (dateInput) => {
-  const date = new Date(dateInput);
-  const months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-  ];
-  const month = months[date.getMonth()];
-  const day = date.getDate();
-  const year = date.getFullYear();
-  return `${month} ${day}, ${year}`; // e.g., "September 2, 2025"
-};
-
-const nonMarketNotes = computed(() => {
-  return notes.value.filter(note => !note.match(/^\d+\.\s/));
-});
-
-const marketNotes = computed(() => {
-  return notes.value
-    .filter(note => note.match(/^\d+\.\s/))
-    .map(note => note.replace(/^\d+\.\s/, '').trim());
-});
-
-// Group price data by category
-const groupedPriceData = computed(() => {
+const groupedData = computed(() => {
   const grouped = {};
-  const filtered = searchQuery.value
-    ? priceData.value.filter(item =>
-        item.commodity.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-        item.specification.toLowerCase().includes(searchQuery.value.toLowerCase())
-      )
-    : priceData.value;
-
-  filtered.forEach(item => {
-    const category = item.category || 'UNKNOWN';
-    if (!grouped[category]) grouped[category] = [];
-    grouped[category].push(item);
-    // Sort items within each category by number
-    grouped[category].sort((a, b) => parseInt(a.number, 10) - parseInt(b.number, 10));
+  const query = searchQuery.value.toLowerCase();
+  
+  priceData.value.filter(i => i.commodity.toLowerCase().includes(query)).forEach(item => {
+    if (!grouped[item.category]) grouped[item.category] = [];
+    grouped[item.category].push(item);
   });
-
-  const categoryOrder = [
-    'IMPORTED COMMERCIAL RICE',
-    'LOCAL COMMERCIAL RICE',
-    'CORN',
-    'FISH',
-    'LIVESTOCK & POULTRY PRODUCTS',
-    'LOWLAND VEGETABLES',
-    'HIGHLAND VEGETABLES',
-    'SPICES',
-    'FRUITS',
-    'OTHER BASIC COMMODITIES',
-    'UNKNOWN' // Include UNKNOWN to handle any unmatched categories
-  ];
-
-  return Object.fromEntries(
-    Object.entries(grouped).sort(([a], [b]) => {
-      const indexA = categoryOrder.indexOf(a);
-      const indexB = categoryOrder.indexOf(b);
-      // Handle cases where category is not in categoryOrder
-      if (indexA === -1) return 1; // Push unknown categories to the end
-      if (indexB === -1) return -1;
-      return indexA - indexB;
-    })
-  );
+  
+  // Alphabetical sort within categories
+  Object.keys(grouped).forEach(k => grouped[k].sort((a,b) => a.commodity.localeCompare(b.commodity)));
+  return grouped;
 });
 
-const fetchAvailableDates = async (retries = 3, delay = 1000) => {
-  for (let attempt = 1; attempt <= retries; attempt++) {
-    try {
-      loading.value = true;
-      error.value = null;
-      const response = await axios.get(`${apiUrl}/proxy?endpoint=daily_links&limit=20`, {
-        timeout: 30000,
-        headers: { Authorization: `Bearer ${apiKey}` }
-      });
-      availableDates.value = response.data;
-      
-      if (availableDates.value.length > 0) {
-        // Try to find a date with existing data by checking the first few dates
-        let dateWithData = null;
-        
-        for (const dateLink of availableDates.value.slice(0, 5)) { // Check first 5 dates
-          try {
-            const formattedDate = formatDate(new Date(dateLink.date));
-            const testResponse = await axios.get(`${apiUrl}/proxy?endpoint=data&date=${encodeURIComponent(formattedDate)}`, {
-              timeout: 15000,
-              headers: { Authorization: `Bearer ${apiKey}` }
-            });
-            
-            // If we get data and it's not empty, use this date
-            if (testResponse.data.data && testResponse.data.data.length > 0) {
-              dateWithData = new Date(dateLink.date);
-              priceData.value = testResponse.data.data;
-              notes.value = testResponse.data.notes || [];
-              break;
-            }
-          } catch (testError) {
-            // Continue to next date if this one fails
-            console.log(`No data found for ${dateLink.date}, trying next...`);
-            continue;
-          }
-        }
-        
-        if (dateWithData) {
-          selectedDate.value = dateWithData;
-        } else {
-          // If no date has data, still set the first date but don't auto-fetch
-          selectedDate.value = new Date(availableDates.value[0].date);
-          error.value = 'No recent data available. Please select a date manually.';
-        }
-      } else {
-        error.value = 'No dates available. Please try again later or check backend logs.';
-      }
-      return;
-    } catch (err) {
-      console.error(`Attempt ${attempt} failed:`, err.message);
-      if (attempt === retries) {
-        error.value = `Failed to load dates: ${err.message}.`;
-      }
-      await new Promise(resolve => setTimeout(resolve, delay));
-    } finally {
-      loading.value = false;
-    }
-  }
-};
-
-// Update fetchData (replace lines ~233-251)
 const fetchData = async () => {
-  if (!selectedDate.value) return;
+  loading.value = true;
   try {
-    loading.value = true;
-    error.value = null;
-    const formattedDate = formatDate(selectedDate.value);
-    const response = await axios.get(`${apiUrl}/proxy?endpoint=data&date=${encodeURIComponent(formattedDate)}`, {
-      timeout: 30000,
+    const formatted = selectedDate.value.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    const { data } = await axios.get(`${apiUrl}/proxy`, {
+      params: { endpoint: 'data', date: formatted },
       headers: { Authorization: `Bearer ${apiKey}` }
     });
-    priceData.value = response.data.data || [];
-    notes.value = response.data.notes || [];
-    if (priceData.value.length === 0) {
-      error.value = 'No data found for the selected date.';
-    }
-  } catch (err) {
-    console.error('Data fetch error:', err.message);
-    error.value = `Failed to fetch data: ${err.message}.`;
+    priceData.value = data.data;
+  } catch (e) {
+    alert("Error fetching data. Ensure the server is running.");
   } finally {
     loading.value = false;
   }
 };
 
-onMounted(() => {
-  fetchAvailableDates();
-});
+onMounted(fetchData);
 </script>
+
+<style>
+/* Smooth transitions for the UI */
+.animate-in { animation: fadeIn 0.5s ease-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+</style>
